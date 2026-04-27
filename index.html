@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Onboarding — Dashboard de Inteligencia Comercial</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #181818;
+    --border: #222222;
+    --border-light: #2a2a2a;
+    --text: #e8e4dc;
+    --text-muted: #6a6560;
+    --text-dim: #3a3835;
+    --accent: #c8b97a;
+    --accent-dim: #8a7d52;
+    --danger: #c0392b;
+    --success: #2ecc71;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body: 'Instrument Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 56px;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .topbar-logo {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .topbar-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar-wrap {
+    position: fixed;
+    top: 56px; left: 0; right: 0;
+    z-index: 99;
+    height: 2px;
+    background: var(--border);
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    padding-top: 80px;
+    max-width: 720px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-bottom: 120px;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 80px 0 64px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 64px;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-desc {
+    font-size: 15px;
+    color: var(--text-muted);
+    max-width: 480px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* STEP INDICATOR */
+  .step-indicator {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 48px;
+    align-items: center;
+  }
+
+  .step-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border-light);
+    transition: all 0.3s;
+  }
+
+  .step-dot.active { background: var(--accent); }
+  .step-dot.done { background: var(--accent-dim); }
+
+  .step-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-left: 8px;
+  }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 48px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    padding-top: 4px;
+    min-width: 24px;
+  }
+
+  .section-titles {}
+
+  .section-platform {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .section-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    padding-left: 44px;
+    font-weight: 300;
+  }
+
+  /* FIELD */
+  .field-group {
+    padding-left: 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 12px 16px;
+    border-radius: 2px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    width: 100%;
+    resize: vertical;
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder {
+    color: var(--text-dim);
+  }
+
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus {
+    border-color: var(--accent-dim);
+    background: var(--surface2);
+  }
+
+  .field input.filled {
+    border-color: var(--accent-dim);
+  }
+
+  .field-note {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    padding-top: 2px;
+  }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  /* CHECKLIST SECTION */
+  .checklist-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .checklist-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    font-weight: 300;
+  }
+
+  .checklist-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+
+  .check-item:last-child { border-bottom: none; }
+  .check-item:hover { background: var(--surface); }
+
+  .check-box {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--border-light);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .check-item.checked .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .check-box svg {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .check-item.checked .check-box svg { opacity: 1; }
+
+  .check-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 300;
+    transition: color 0.2s;
+  }
+
+  .check-item.checked .check-text {
+    color: var(--text);
+  }
+
+  /* SUBMIT BUTTON */
+  .submit-wrap {
+    margin-top: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .btn-submit {
+    background: var(--accent);
+    color: #0a0a0a;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    border: none;
+    padding: 16px 40px;
+    cursor: pointer;
+    border-radius: 1px;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .btn-submit:hover { background: #d4c688; }
+  .btn-submit:active { transform: scale(0.98); }
+  .btn-submit:disabled {
+    background: var(--border-light);
+    color: var(--text-dim);
+    cursor: not-allowed;
+  }
+
+  .submit-note {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+
+  /* SUCCESS STATE */
+  .success-state {
+    display: none;
+    text-align: center;
+    padding: 80px 0;
+  }
+
+  .success-state.visible { display: block; }
+
+  .success-icon {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 32px;
+  }
+
+  .success-state h2 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .success-state p {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+
+  /* STATUS MESSAGE */
+  .status-msg {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    padding: 0;
+    display: none;
+  }
+
+  .status-msg.error { color: var(--danger); display: block; }
+  .status-msg.success { color: var(--success); display: block; }
+
+  /* FOOTER */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-left {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .footer-right {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  /* GRAIN OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 200;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  @media (max-width: 600px) {
+    .topbar { padding: 0 20px; }
+    .main { padding-left: 20px; padding-right: 20px; }
+    .hero { padding: 60px 0 48px; }
+    .field-group { padding-left: 0; }
+    .section-desc { padding-left: 0; }
+    .section-num { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-logo">Equipo RUT</div>
+  <div class="topbar-meta">Onboarding — Inteligencia Comercial</div>
+</header>
+
+<!-- PROGRESS -->
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressBar"></div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Abril 2026 — Etapa 1</div>
+    <h1>Accesos e<br><em>integraciones</em><br>del proyecto</h1>
+    <p class="hero-desc">Para arrancar la construcción del dashboard necesitamos los accesos a las plataformas que se van a integrar. Completa cada campo con la información solicitada.</p>
+  </div>
+
+  <div id="formArea">
+
+    <!-- STEP INDICATOR -->
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
+      <div class="step-dot" id="dot3"></div>
+      <div class="step-dot" id="dot4"></div>
+      <div class="step-dot" id="dot5"></div>
+      <span class="step-label" id="stepLabel">Plataforma 1 de 4</span>
+    </div>
+
+    <!-- 01 META -->
+    <div class="section" id="s1">
+      <div class="section-header">
+        <div class="section-num">01</div>
+        <div class="section-titles">
+          <div class="section-platform">Meta</div>
+          <div class="section-title">Meta Business Manager</div>
+        </div>
+      </div>
+      <p class="section-desc">Necesitamos acceso al Business Manager para conectar la API de Meta Ads y extraer datos de campañas, inversión y resultados en tiempo real.</p>
+      <div class="field-group">
+        <div class="field">
+          <label>App ID</label>
+          <input type="text" id="meta_app_id" placeholder="2387384901683707" />
+          <span class="field-note">En developers.facebook.com > tu app > Configuracion > Basica > Identificador de la app</span>
+        </div>
+        <div class="field">
+          <label>App Secret</label>
+          <input type="text" id="meta_app_secret" placeholder="beac72b171ddb2828d7be813a754f94a" />
+          <span class="field-note">En developers.facebook.com > tu app > Configuracion > Basica > Clave secreta de la app</span>
+        </div>
+        <div class="field">
+          <label>Token del usuario del sistema</label>
+          <input type="text" id="meta_token" placeholder="EAABx..." />
+          <span class="field-note">En Business Manager > Usuarios del sistema > selecciona el usuario > Generar token > activar ads_management y ads_read</span>
+        </div>
+        <div class="field">
+          <label>ID de la cuenta publicitaria</label>
+          <input type="text" id="meta_ad_account_id" placeholder="act_1665883124545" />
+          <span class="field-note">En Business Manager > Cuentas > Cuentas publicitarias > Identificador (agregar prefijo act_)</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- 02 SHOPIFY -->
+    <div class="section" id="s2">
+      <div class="section-header">
+        <div class="section-num">02</div>
+        <div class="section-titles">
+          <div class="section-platform">Shopify</div>
+          <div class="section-title">Tienda Shopify</div>
+        </div>
+      </div>
+      <p class="section-desc">Para integrar los datos de productos top, busquedas internas y comportamiento de compra en el dashboard.</p>
+      <div class="field-group">
+        <div class="field">
+          <label>URL de la tienda</label>
+          <input type="text" id="shopify_url" placeholder="mitienda.myshopify.com" />
+        </div>
+        <div class="field">
+          <label>API Key</label>
+          <input type="text" id="shopify_api_key" placeholder="shpat_..." />
+          <span class="field-note">Se genera en Admin > Apps > Desarrollar apps > Crear app</span>
+        </div>
+        <div class="field">
+          <label>API Secret</label>
+          <input type="text" id="shopify_secret" placeholder="shpss_..." />
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- 03 KOMMO -->
+    <div class="section" id="s3">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <div class="section-titles">
+          <div class="section-platform">Kommo CRM</div>
+          <div class="section-title">CRM — Equipo de ventas</div>
+        </div>
+      </div>
+      <p class="section-desc">Para integrar el modulo de desempeno del equipo comercial: cierres por asesora, tiempo de respuesta y pipeline activo.</p>
+      <div class="field-group">
+        <div class="field">
+          <label>Subdominio de Kommo</label>
+          <input type="text" id="kommo_domain" placeholder="miempresa.kommo.com" />
+        </div>
+        <div class="field">
+          <label>API Key o Long-lived Token</label>
+          <input type="text" id="kommo_token" placeholder="Token de integracion..." />
+          <span class="field-note">En Kommo: Configuracion > Integraciones > API</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- 04 PROFIT -->
+    <div class="section" id="s4">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <div class="section-titles">
+          <div class="section-platform">Profit — Sistema operativo</div>
+          <div class="section-title">Export de ventas</div>
+        </div>
+      </div>
+      <p class="section-desc">La conexion directa a Profit no es viable en esta etapa. El flujo es manual: una persona del equipo descarga el reporte semanal y lo sube a una carpeta compartida que te vamos a pasar.</p>
+      <div class="field-group">
+        <div class="field">
+          <label>Nombre de la persona responsable del export</label>
+          <input type="text" id="profit_responsable" placeholder="Nombre completo" />
+          <span class="field-note">Quien descargara el reporte de Profit cada semana</span>
+        </div>
+        <div class="field">
+          <label>Email de esa persona</label>
+          <input type="email" id="profit_email" placeholder="responsable@empresa.com" />
+          <span class="field-note">Le compartiremos acceso a la carpeta de Drive</span>
+        </div>
+        <div class="field">
+          <label>Columnas disponibles en tu export de Profit</label>
+          <textarea id="profit_columnas" rows="3" placeholder="Ej: codigo de producto, descripcion, cantidad, precio bolivares, precio dolares..."></textarea>
+          <span class="field-note">Describe o pega los encabezados de columna que ves en el reporte</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- CHECKLIST -->
+    <div class="section" id="s5">
+      <div class="checklist-title">Confirmaciones previas al arranque</div>
+      <p class="checklist-sub">Confirma que las siguientes cuentas y accesos ya estan activos antes de enviar.</p>
+      <div class="checklist-items">
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+              <path d="M1 4L3.5 6.5L9 1" stroke="#0a0a0a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="check-text">Tengo acceso de administrador a Meta Business Manager</span>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+              <path d="M1 4L3.5 6.5L9 1" stroke="#0a0a0a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="check-text">Mi tienda Shopify esta activa y puedo crear apps de desarrollo</span>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+              <path d="M1 4L3.5 6.5L9 1" stroke="#0a0a0a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="check-text">Tengo cuenta activa en Kommo CRM con datos de mi equipo</span>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+              <path d="M1 4L3.5 6.5L9 1" stroke="#0a0a0a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="check-text">Tengo a alguien de confianza que puede hacer el export de Profit semanal</span>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+              <path d="M1 4L3.5 6.5L9 1" stroke="#0a0a0a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="check-text">El contador puede asistir a la sesion de transferencia de data (Fase 1)</span>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+              <path d="M1 4L3.5 6.5L9 1" stroke="#0a0a0a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="check-text">Javi puede asistir a la sesion de Meta Ads (Fase 2, 30-45 min)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBMIT -->
+    <div class="submit-wrap">
+      <button class="btn-submit" id="submitBtn" onclick="submitForm()">Enviar accesos al equipo</button>
+      <div class="status-msg" id="statusMsg"></div>
+      <span class="submit-note">Los datos se envian de forma segura al equipo de construccion</span>
+    </div>
+
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-state" id="successState">
+    <div class="success-icon">
+      <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+        <path d="M1 8L7 14L19 1" stroke="#c8b97a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h2>Accesos recibidos.</h2>
+    <p>El equipo revisara la informacion y se pondra en contacto<br>para confirmar el arranque del proyecto.</p>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">Equipo RUT — Eduardo Aguiar</div>
+    <div class="footer-right">Abril 2026</div>
+  </div>
+
+</main>
+
+<script>
+  const WEBHOOK = "https://script.google.com/macros/s/AKfycby--kZJFL7H073ei_WBgxzBcQtTwWVG-DA3HiAZGKpOa182PRLYFQc6E1F5WaRRtEMh/exec";
+
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const doc = document.documentElement;
+    const scrollTop = doc.scrollTop || document.body.scrollTop;
+    const scrollHeight = doc.scrollHeight - doc.clientHeight;
+    const pct = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    document.getElementById('progressBar').style.width = pct + '%';
+
+    // Update dots
+    const sections = ['s1','s2','s3','s4','s5'];
+    const labels = ['Plataforma 1 de 4','Plataforma 2 de 4','Plataforma 3 de 4','Plataforma 4 de 4','Confirmaciones'];
+    sections.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const dot = document.getElementById('dot' + (i+1));
+      if (rect.top < window.innerHeight * 0.5) {
+        dot.classList.add('active');
+        document.getElementById('stepLabel').textContent = labels[i];
+      }
+      if (rect.bottom < 0) {
+        dot.classList.remove('active');
+        dot.classList.add('done');
+      }
+    });
+  });
+
+  // Intersection Observer for section animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.section').forEach(s => observer.observe(s));
+
+  // Checklist
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+  }
+
+  // Input fill detection
+  document.querySelectorAll('input, textarea').forEach(inp => {
+    inp.addEventListener('input', () => {
+      if (inp.value.trim()) inp.classList.add('filled');
+      else inp.classList.remove('filled');
+    });
+  });
+
+  // Submit
+  async function submitForm() {
+    const btn = document.getElementById('submitBtn');
+    const msg = document.getElementById('statusMsg');
+
+    const data = {
+      timestamp: new Date().toISOString(),
+      meta_app_id: document.getElementById('meta_app_id').value,
+      meta_app_secret: document.getElementById('meta_app_secret').value,
+      meta_token: document.getElementById('meta_token').value,
+      meta_ad_account_id: document.getElementById('meta_ad_account_id').value,
+      shopify_url: document.getElementById('shopify_url').value,
+      shopify_api_key: document.getElementById('shopify_api_key').value,
+      shopify_secret: document.getElementById('shopify_secret').value,
+      kommo_domain: document.getElementById('kommo_domain').value,
+      kommo_token: document.getElementById('kommo_token').value,
+      profit_responsable: document.getElementById('profit_responsable').value,
+      profit_email: document.getElementById('profit_email').value,
+      profit_columnas: document.getElementById('profit_columnas').value,
+      checklist: Array.from(document.querySelectorAll('.check-item')).map(el => ({
+        texto: el.querySelector('.check-text').textContent,
+        checked: el.classList.contains('checked')
+      }))
+    };
+
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+    msg.className = 'status-msg';
+    msg.textContent = '';
+
+    try {
+      await fetch(WEBHOOK, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      document.getElementById('formArea').style.display = 'none';
+      document.getElementById('successState').classList.add('visible');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (err) {
+      msg.className = 'status-msg error';
+      msg.textContent = 'Error al enviar. Intenta de nuevo.';
+      btn.disabled = false;
+      btn.textContent = 'Enviar accesos al equipo';
+    }
+  }
+</script>
+
+</body>
+</html>
